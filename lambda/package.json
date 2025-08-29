@@ -1,0 +1,9 @@
+{
+	"name": "cognito-post-confirmation",
+	"version": "1.0.0",
+	"description": "Lambda function to add users to group after confirmation",
+	"main": "post-confirmation-trigger.js",
+	"dependencies": {
+		"@aws-sdk/client-cognito-identity-provider": "^3.0.0"
+	}
+}
