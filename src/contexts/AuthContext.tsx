@@ -19,15 +19,11 @@ import {
 	resendSignUpCode
 } from "aws-amplify/auth";
 
-// Get environment variables
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-const userPoolId =
-	process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || "us-east-1_7JEbEDNxI";
-const clientId =
-	process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || "62doa0cn2vvgu9is2ctp515ui2";
-const cognitoDomain =
-	process.env.NEXT_PUBLIC_COGNITO_DOMAIN ||
-	"us-east-17jebednxi.auth.us-east-1.amazoncognito.com";
+// Hardcoded configuration values
+const appUrl = "https://staging.d246qbo5jhps11.amplifyapp.com";
+const userPoolId = "us-east-1_7JEbEDNxI";
+const clientId = "62doa0cn2vvgu9is2ctp515ui2";
+const cognitoDomain = "us-east-17jebednxi.auth.us-east-1.amazoncognito.com";
 
 // Configure Amplify
 const cognitoAuthConfig = {
@@ -252,14 +248,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 			await signOut({ global: true });
 			setUser(null);
 
-			// Redirect to Cognito logout
-			const logoutUri = `${appUrl}/logout`;
-			const cognitoDomainUrl = `https://${cognitoDomain}`;
-			window.location.href = `${cognitoDomainUrl}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(
-				logoutUri
-			)}`;
+			// Clear local storage and session storage
+			localStorage.clear();
+			sessionStorage.clear();
+
+			// Redirect directly to home page without calling Cognito logout
+			window.location.href = "/";
 		} catch (error) {
 			console.error("Logout error:", error);
+			// Even if signOut fails, clear local state and redirect
+			setUser(null);
+			localStorage.clear();
+			sessionStorage.clear();
+			window.location.href = "/";
 		}
 	};
 
