@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { Amplify } from "aws-amplify";
 import {
 	signIn,
@@ -19,18 +19,28 @@ import {
 	resendSignUpCode
 } from "aws-amplify/auth";
 
+// Get environment variables
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const userPoolId =
+	process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || "us-east-1_7JEbEDNxI";
+const clientId =
+	process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || "62doa0cn2vvgu9is2ctp515ui2";
+const cognitoDomain =
+	process.env.NEXT_PUBLIC_COGNITO_DOMAIN ||
+	"us-east-17jebednxi.auth.us-east-1.amazoncognito.com";
+
 // Configure Amplify
 const cognitoAuthConfig = {
 	Auth: {
 		Cognito: {
-			userPoolId: "us-east-1_7JEbEDNxI",
-			userPoolClientId: "62doa0cn2vvgu9is2ctp515ui2",
+			userPoolId,
+			userPoolClientId: clientId,
 			loginWith: {
 				oauth: {
-					domain: "us-east-17jebednxi.auth.us-east-1.amazoncognito.com",
+					domain: cognitoDomain,
 					scopes: ["email", "openid", "phone"],
-					redirectSignIn: ["http://localhost:3000/authorization"],
-					redirectSignOut: ["http://localhost:3000/logout"],
+					redirectSignIn: [`${appUrl}/authorization`],
+					redirectSignOut: [`${appUrl}/logout`],
 					responseType: "code" as const
 				}
 			}
@@ -243,11 +253,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 			setUser(null);
 
 			// Redirect to Cognito logout
-			const clientId = "62doa0cn2vvgu9is2ctp515ui2";
-			const logoutUri = "http://localhost:3000/logout";
-			const cognitoDomain =
-				"https://us-east-17jebednxi.auth.us-east-1.amazoncognito.com";
-			window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(
+			const logoutUri = `${appUrl}/logout`;
+			const cognitoDomainUrl = `https://${cognitoDomain}`;
+			window.location.href = `${cognitoDomainUrl}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(
 				logoutUri
 			)}`;
 		} catch (error) {
